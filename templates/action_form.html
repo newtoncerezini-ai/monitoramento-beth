@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <span class="eyebrow">{{ "Edicao" if action else "Cadastro" }}</span>
+    <h1>{{ "Editar acao" if action else "Nova acao" }}</h1>
+  </div>
+</header>
+
+<form class="panel form-grid" method="post">
+  <label>Codigo
+    <input name="code" required value="{{ action.code if action else '' }}" placeholder="Ex.: 1.2.1">
+  </label>
+  <label>Acao pai
+    <select name="parent_id">
+      <option value="">Sem acao pai</option>
+      {% for item in actions %}
+        {% if item.level < 3 and (not action or item.id != action.id) %}
+          <option value="{{ item.id }}" {% if action and action.parent_id == item.id %}selected{% endif %}>{{ item.code }} - {{ item.title }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+  </label>
+  <label class="span-2">O que sera feito
+    <input name="title" required value="{{ action.title if action else '' }}">
+  </label>
+  <label>Area
+    <input name="area" value="{{ action.area if action else '' }}">
+  </label>
+  <label>Status
+    <select name="status">
+      {% for status in status_options %}
+        <option value="{{ status }}" {% if action and action.status == status %}selected{% endif %}>{{ status }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Inicio planejado
+    <input type="date" name="planned_start" value="{{ action.planned_start if action else '' }}">
+  </label>
+  <label>Fim planejado
+    <input type="date" name="planned_end" value="{{ action.planned_end if action else '' }}">
+  </label>
+  <label>Inicio real
+    <input type="date" name="actual_start" value="{{ action.actual_start if action else '' }}">
+  </label>
+  <label>Fim real
+    <input type="date" name="actual_end" value="{{ action.actual_end if action else '' }}">
+  </label>
+  <label class="span-2">Responsaveis
+    <select name="people" multiple size="7">
+      {% for person in people %}
+        <option value="{{ person.id }}" {% if selected_people and person.id in selected_people %}selected{% endif %}>{{ person.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Onde
+    <input name="place" value="{{ action.place if action else '' }}">
+  </label>
+  <label>Quanto
+    <input name="cost" value="{{ action.cost if action else '' }}">
+  </label>
+  <label class="span-2">Por que
+    <textarea name="why">{{ action.why if action else '' }}</textarea>
+  </label>
+  <label class="span-2">Como
+    <textarea name="method">{{ action.method if action else '' }}</textarea>
+  </label>
+  <label class="span-2">Observacoes
+    <textarea name="observations">{{ action.observations if action else '' }}</textarea>
+  </label>
+  <div class="form-actions span-2">
+    <button class="button primary" type="submit">Salvar</button>
+    <a class="button" href="{{ url_for('actions_index') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

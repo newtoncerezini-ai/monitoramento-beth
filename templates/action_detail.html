@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <span class="eyebrow">Acao {{ action.code }}</span>
+    <h1>{{ action.title }}</h1>
+  </div>
+  {% if can_write %}
+    <a class="button" href="{{ url_for('action_edit', action_id=action.id) }}">Editar</a>
+  {% endif %}
+</header>
+
+<section class="grid two">
+  <div class="panel facts">
+    <h2>Dados principais</h2>
+    <dl>
+      <dt>Status</dt><dd><span class="badge {{ action.status|lower|replace(' ', '-') }}">{{ action.status }}</span></dd>
+      <dt>Responsaveis</dt><dd>{{ action.people or "-" }}</dd>
+      <dt>Acao pai</dt><dd>{{ action.parent_title or "-" }}</dd>
+      <dt>Inicio planejado</dt><dd>{{ action.planned_start or "-" }}</dd>
+      <dt>Fim planejado</dt><dd>{{ action.planned_end or "-" }}</dd>
+      <dt>Inicio real</dt><dd>{{ action.actual_start or "-" }}</dd>
+      <dt>Fim real</dt><dd>{{ action.actual_end or "-" }}</dd>
+    </dl>
+  </div>
+
+  {% if can_write %}
+    <form class="panel monitor-form" method="post" action="{{ url_for('update_new', action_id=action.id) }}">
+      <h2>Novo acompanhamento</h2>
+      <label>Data <input type="date" name="update_date"></label>
+      <label>Status
+        <select name="status">
+          {% for status in status_options %}
+            <option value="{{ status }}" {% if action.status == status %}selected{% endif %}>{{ status }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Avanco <input type="number" min="0" max="100" name="progress" value="0"></label>
+      <label>Comentario <textarea name="comment"></textarea></label>
+      <label>Proximo passo <textarea name="next_step"></textarea></label>
+      <label>Bloqueio <textarea name="blocker"></textarea></label>
+      <button class="button primary" type="submit">Registrar</button>
+    </form>
+  {% endif %}
+</section>
+
+{% if children %}
+<section class="panel">
+  <div class="panel-head"><h2>Subatividades</h2></div>
+  <table>
+    <thead><tr><th>Codigo</th><th>Acao</th><th>Prazo</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for child in children %}
+      <tr>
+        <td>{{ child.code }}</td>
+        <td><a href="{{ url_for('action_detail', action_id=child.id) }}">{{ child.title }}</a></td>
+        <td>{{ child.planned_end or "-" }}</td>
+        <td><span class="badge {{ child.status|lower|replace(' ', '-') }}">{{ child.status }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+<section class="panel">
+  <div class="panel-head"><h2>Historico</h2></div>
+  <table>
+    <thead><tr><th>Data</th><th>Status</th><th>Avanco</th><th>Comentario</th><th>Proximo passo</th><th>Bloqueio</th></tr></thead>
+    <tbody>
+      {% for update in updates %}
+        <tr>
+          <td>{{ update.update_date }}</td>
+          <td>{{ update.status }}</td>
+          <td>{{ update.progress }}%</td>
+          <td>{{ update.comment or "-" }}</td>
+          <td>{{ update.next_step or "-" }}</td>
+          <td>{{ update.blocker or "-" }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6">Nenhum acompanhamento registrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

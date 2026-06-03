@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <span class="eyebrow">Monitoramento</span>
+    <h1>Visao por responsavel</h1>
+  </div>
+</header>
+
+<section class="panel">
+  <table>
+    <thead>
+      <tr><th>Responsavel</th><th>Area</th><th>Total</th><th>Em andamento</th><th>Atrasadas</th><th>Concluidas</th><th>Avanco</th></tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        {% set rate = ((row.completed or 0) / row.total * 100)|round|int if row.total else 0 %}
+        <tr>
+          <td>{{ row.name }}</td>
+          <td>{{ row.area or "-" }}</td>
+          <td class="mono">{{ row.total }}</td>
+          <td class="mono">{{ row.in_progress or 0 }}</td>
+          <td><span class="badge {{ 'atrasado' if row.overdue else '' }}">{{ row.overdue or 0 }}</span></td>
+          <td class="mono">{{ row.completed or 0 }}</td>
+          <td>
+            <div class="table-progress"><i style="width: {{ rate }}%"></i></div>
+            <small>{{ rate }}%</small>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

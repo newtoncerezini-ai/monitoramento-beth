@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <span class="eyebrow">Monitoramento</span>
+    <h1>Visao geral dos planos de acao</h1>
+  </div>
+  {% if can_write %}
+    <a class="button primary" href="{{ url_for('action_new') }}">Nova acao</a>
+  {% endif %}
+</header>
+
+<form class="command-bar" action="{{ url_for('actions_index') }}" method="get">
+  <div class="search-field">
+    <span class="material-symbols-outlined">search</span>
+    <input name="q" placeholder="Buscar acoes, responsaveis ou codigos...">
+  </div>
+  <a class="button" href="{{ url_for('actions_index') }}">
+    <span class="material-symbols-outlined">filter_list</span> Filtros
+  </a>
+  {% if can_write %}
+    <a class="button primary" href="{{ url_for('action_new') }}">
+      <span class="material-symbols-outlined">add</span> Nova entrada
+    </a>
+  {% endif %}
+</form>
+
+<section class="kpi-grid">
+  <article class="kpi"><span>Total actions</span><strong>{{ total }}</strong><small>Acoes cadastradas</small></article>
+  <article class="kpi"><span>In progress</span><strong>{{ by_status["Em andamento"] }}</strong><div class="mini-progress"><i style="width: 36%"></i></div></article>
+  <article class="kpi danger"><span>Alerts</span><strong>{{ overdue }}</strong><small>Requer atencao imediata</small></article>
+  <article class="kpi success"><span>Completed</span><strong>{{ done }}</strong><small>Com status concluido</small></article>
+</section>
+
+<section class="grid two">
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Status</h2>
+    </div>
+    <div class="status-list">
+      {% for status, count in by_status.items() %}
+        <div class="status-row">
+          <span>{{ status }}</span>
+          <strong>{{ count }}</strong>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Action monitoring</h2>
+    </div>
+    <table>
+      <thead><tr><th>Action ID</th><th>Description</th><th>Timestamp</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for action in next_actions %}
+          <tr>
+            <td class="mono">#{{ action.code }}</td>
+            <td><a href="{{ url_for('action_detail', action_id=action.id) }}">{{ action.title }}</a></td>
+            <td>{{ action.planned_end or "-" }}</td>
+            <td><span class="badge {{ action.status|lower|replace(' ', '-') }}">{{ action.status }}</span></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4">Nenhum prazo cadastrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Planos macro</h2>
+  </div>
+  <table>
+    <thead><tr><th>Action ID</th><th>Description</th><th>User</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for plan in plans %}
+        <tr>
+          <td class="mono">#{{ plan.code }}</td>
+          <td><a href="{{ url_for('action_detail', action_id=plan.id) }}">{{ plan.title }}</a></td>
+          <td>{{ plan.people|join(", ") }}</td>
+          <td><span class="badge {{ plan.status|lower|replace(' ', '-') }}">{{ plan.status }}</span></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

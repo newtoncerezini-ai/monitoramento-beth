@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Entrar - Monitoramento COMFEM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body class="login-page">
+    <main class="login-card">
+      <div class="brand login-brand">
+        <span class="brand-mark">C</span>
+        <div>
+          <strong>COMFEM</strong>
+          <small>Monitoramento de planos</small>
+        </div>
+      </div>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash">
+            {% for message in messages %}
+              <p>{{ message }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      <form method="post" class="login-form">
+        <label>Usuario
+          <input name="username" autocomplete="username" required autofocus>
+        </label>
+        <label>Senha
+          <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <button class="button primary" type="submit">Entrar</button>
+      </form>
+    </main>
+  </body>
+</html>

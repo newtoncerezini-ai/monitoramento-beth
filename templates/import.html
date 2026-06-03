@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <span class="eyebrow">Dados iniciais</span>
+    <h1>Importar planilha</h1>
+  </div>
+</header>
+
+<form class="panel form-grid" method="post">
+  <label class="span-2">Caminho da planilha
+    <input name="path" value="{{ default_path }}">
+  </label>
+  <p class="hint span-2">A importacao atualiza acoes pelo codigo e recria os vinculos de responsaveis de cada acao.</p>
+  <div class="form-actions span-2">
+    <button class="button primary" type="submit">Importar</button>
+  </div>
+</form>
+{% endblock %}

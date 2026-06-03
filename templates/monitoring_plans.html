@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <span class="eyebrow">Monitoramento</span>
+    <h1>Visao por plano macro</h1>
+  </div>
+</header>
+
+<section class="plan-grid">
+  {% for item in plans %}
+    <article class="panel plan-card">
+      <div class="panel-head">
+        <div>
+          <h2>#{{ item.plan.code }} - {{ item.plan.title }}</h2>
+          <small>{{ item.plan.people|join(", ") or "Sem responsavel" }}</small>
+        </div>
+        <span class="badge {{ 'atrasado' if item.overdue else 'concluido' if item.rate == 100 else '' }}">{{ item.rate }}%</span>
+      </div>
+      <div class="plan-metrics">
+        <span><strong>{{ item.total }}</strong>Total</span>
+        <span><strong>{{ item.completed }}</strong>Concluidas</span>
+        <span><strong>{{ item.overdue }}</strong>Atrasadas</span>
+      </div>
+      <div class="table-progress"><i style="width: {{ item.rate }}%"></i></div>
+      <div class="critical-list">
+        <strong>Subatividades criticas</strong>
+        {% for action in item.critical %}
+          <a href="{{ url_for('action_detail', action_id=action.id) }}">#{{ action.code }} - {{ action.title }} <small>{{ action.planned_end or "-" }}</small></a>
+        {% else %}
+          <span>Nenhuma subatividade critica.</span>
+        {% endfor %}
+      </div>
+    </article>
+  {% endfor %}
+</section>
+{% endblock %}

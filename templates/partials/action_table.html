@@ -1,0 +1,17 @@
+{% set rows = actions if actions is defined else overdue %}
+<table>
+  <thead><tr><th>Action ID</th><th>Description</th><th>User</th><th>Prazo</th><th>Status</th></tr></thead>
+  <tbody>
+    {% for action in rows %}
+      <tr>
+        <td class="mono">#{{ action.code }}</td>
+        <td><a href="{{ url_for('action_detail', action_id=action.id) }}">{{ action.title }}</a></td>
+        <td>{{ action.people|join(", ") or "Sem responsavel" }}</td>
+        <td>{{ action.planned_end or "-" }}</td>
+        <td><span class="badge {{ action.status|lower|replace(' ', '-') }}">{{ action.status }}</span></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5">Nenhuma acao encontrada.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>

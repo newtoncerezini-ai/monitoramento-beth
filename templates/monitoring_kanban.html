@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <span class="eyebrow">Monitoramento</span>
+    <h1>Kanban de status</h1>
+  </div>
+</header>
+
+<section class="kanban-board">
+  {% for status, actions in columns.items() %}
+    <article class="kanban-column">
+      <header>
+        <strong>{{ status }}</strong>
+        <span>{{ actions|length }}</span>
+      </header>
+      <div class="kanban-items">
+        {% for action in actions %}
+          <a class="kanban-card" href="{{ url_for('action_detail', action_id=action.id) }}">
+            <span class="mono">#{{ action.code }}</span>
+            <strong>{{ action.title }}</strong>
+            <small>{{ action.people|join(", ") or "Sem responsavel" }}</small>
+            <em>{{ action.planned_end or "Sem prazo" }}</em>
+          </a>
+        {% else %}
+          <div class="kanban-empty">Sem acoes</div>
+        {% endfor %}
+      </div>
+    </article>
+  {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title or "Monitoramento COMFEM" }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&family=Material+Symbols+Outlined:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark material-symbols-outlined">monitoring</span>
+        <div>
+          <strong>System Monitor</strong>
+          <small>COMFEM</small>
+        </div>
+      </div>
+      {% if g.current_user %}
+        <div class="profile-card">
+          <div class="avatar">{{ g.current_user.name[:2]|upper }}</div>
+          <div>
+            <strong>{{ g.current_user.name }}</strong>
+            <small>{{ g.current_user.role }}</small>
+          </div>
+        </div>
+      {% endif %}
+      <nav>
+        <a class="{{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
+          <span class="material-symbols-outlined">dashboard</span> Dashboard
+        </a>
+        <a class="{{ 'active' if request.endpoint in ['actions_index', 'action_detail', 'monitoring_alerts', 'monitoring_calendar', 'monitoring_people', 'monitoring_plans', 'monitoring_kanban'] else '' }}" href="{{ url_for('actions_index') }}">
+          <span class="material-symbols-outlined">monitoring</span> Monitoramento
+        </a>
+        <div class="nav-sub">
+          <a class="{{ 'active' if request.endpoint == 'monitoring_alerts' else '' }}" href="{{ url_for('monitoring_alerts') }}">Alertas e atrasos</a>
+          <a class="{{ 'active' if request.endpoint == 'monitoring_calendar' else '' }}" href="{{ url_for('monitoring_calendar') }}">Calendario</a>
+          <a class="{{ 'active' if request.endpoint == 'monitoring_people' else '' }}" href="{{ url_for('monitoring_people') }}">Responsaveis</a>
+          <a class="{{ 'active' if request.endpoint == 'monitoring_plans' else '' }}" href="{{ url_for('monitoring_plans') }}">Planos macro</a>
+          <a class="{{ 'active' if request.endpoint == 'monitoring_kanban' else '' }}" href="{{ url_for('monitoring_kanban') }}">Kanban</a>
+        </div>
+        {% if can_write %}
+          <a class="{{ 'active' if request.endpoint in ['admin_home', 'action_new', 'action_edit', 'people_index', 'import_page', 'admin_users', 'admin_user_toggle', 'admin_user_password'] else '' }}" href="{{ url_for('admin_home') }}">
+            <span class="material-symbols-outlined">settings</span> Administracao
+          </a>
+        {% endif %}
+      </nav>
+      <div class="sidebar-actions">
+        <a class="export-link" href="{{ url_for('export_actions') }}">
+          <span class="material-symbols-outlined">download</span> Exportar CSV
+        </a>
+        {% if g.current_user %}
+          <a class="logout-link" href="{{ url_for('logout') }}">
+            <span class="material-symbols-outlined">logout</span> Logout
+          </a>
+        {% endif %}
+      </div>
+    </aside>
+    <main class="page">
+      <header class="topbar">
+        <div class="topbar-title">
+          <span class="material-symbols-outlined">menu</span>
+          <strong>{{ title or "Action Monitoring" }}</strong>
+        </div>
+        <div class="topbar-tools">
+          <span class="material-symbols-outlined notification">notifications</span>
+          {% if g.current_user %}
+            <span class="top-avatar">{{ g.current_user.name[:1]|upper }}</span>
+          {% endif %}
+        </div>
+      </header>
+      <div class="content-shell">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash">
+            <span class="material-symbols-outlined">check_circle</span>
+            {% for message in messages %}
+              <p>{{ message }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <span class="eyebrow">Monitoramento</span>
+    <h1>Calendario de prazos</h1>
+  </div>
+</header>
+
+<section class="calendar-grid">
+  {% for month, actions in months.items() %}
+    <article class="panel calendar-month">
+      <div class="panel-head">
+        <h2>{{ month }}</h2>
+        <span class="badge">{{ actions|length }} prazos</span>
+      </div>
+      <div class="timeline-list">
+        {% for action in actions %}
+          <a class="timeline-item {{ 'is-overdue' if action.planned_end < today and not action.actual_end and action.status != 'Concluido' else '' }}" href="{{ url_for('action_detail', action_id=action.id) }}">
+            <span class="timeline-date">{{ action.planned_end[8:10] }}</span>
+            <div>
+              <strong>#{{ action.code }} - {{ action.title }}</strong>
+              <small>{{ action.people|join(", ") or "Sem responsavel" }}</small>
+            </div>
+            <em class="badge {{ action.status|lower|replace(' ', '-') }}">{{ action.status }}</em>
+          </a>
+        {% endfor %}
+      </div>
+    </article>
+  {% else %}
+    <section class="panel empty-panel">Nenhum prazo planejado cadastrado.</section>
+  {% endfor %}
+</section>
+{% endblock %}

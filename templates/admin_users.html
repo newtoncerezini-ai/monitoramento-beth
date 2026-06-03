@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <span class="eyebrow">Administracao</span>
+    <h1>Usuarios do sistema</h1>
+  </div>
+</header>
+
+<form class="panel form-grid" method="post">
+  <p class="hint span-2">Perfis: admin gerencia usuarios e importacao; gestor cadastra e altera planos, responsaveis e acompanhamentos; usuario apenas consulta.</p>
+  <label>Nome
+    <input name="name" required>
+  </label>
+  <label>Usuario
+    <input name="username" required>
+  </label>
+  <label>Senha
+    <input type="password" name="password" required>
+  </label>
+  <label>Perfil
+    <select name="role">
+      {% for role in role_options %}
+        <option value="{{ role }}">{{ role }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <div class="form-actions span-2">
+    <button class="button primary" type="submit">Criar usuario</button>
+  </div>
+</form>
+
+<section class="panel">
+  <table>
+    <thead>
+      <tr><th>Nome</th><th>Usuario</th><th>Perfil</th><th>Situacao</th><th>Nova senha</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>{{ user.name }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.role }}</td>
+        <td>{{ "Ativo" if user.active else "Inativo" }}</td>
+        <td>
+          <form class="compact-form" method="post" action="{{ url_for('admin_user_password', user_id=user.id) }}">
+            <input type="password" name="password" placeholder="Minimo 6 caracteres">
+            <button class="button" type="submit">Alterar</button>
+          </form>
+        </td>
+        <td>
+          <form method="post" action="{{ url_for('admin_user_toggle', user_id=user.id) }}">
+            <button class="button" type="submit">{{ "Desativar" if user.active else "Ativar" }}</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

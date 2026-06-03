@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <span class="eyebrow">Administracao</span>
+    <h1>Central de entrada de dados</h1>
+  </div>
+</header>
+
+<section class="admin-grid">
+  <a class="admin-card" href="{{ url_for('action_new') }}">
+    <span class="material-symbols-outlined">edit_note</span>
+    <div>
+      <strong>Nova acao</strong>
+      <small>Cadastrar plano, atividade, subatividade, prazos e status.</small>
+      <em>{{ actions_count }} acoes cadastradas</em>
+    </div>
+  </a>
+
+  <a class="admin-card" href="{{ url_for('people_index') }}">
+    <span class="material-symbols-outlined">groups</span>
+    <div>
+      <strong>Responsaveis</strong>
+      <small>Cadastrar e consultar pessoas vinculadas aos planos de acao.</small>
+      <em>{{ people_count }} responsaveis ativos</em>
+    </div>
+  </a>
+
+  {% if can_admin %}
+    <a class="admin-card" href="{{ url_for('import_page') }}">
+      <span class="material-symbols-outlined">upload_file</span>
+      <div>
+        <strong>Importar planilha</strong>
+        <small>Atualizar a base a partir do arquivo Excel original.</small>
+        <em>Acesso de administrador</em>
+      </div>
+    </a>
+
+    <a class="admin-card" href="{{ url_for('admin_users') }}">
+      <span class="material-symbols-outlined">manage_accounts</span>
+      <div>
+        <strong>Usuarios do sistema</strong>
+        <small>Criar usuarios, trocar senhas e definir perfis de acesso.</small>
+        <em>{{ users_count }} usuarios ativos</em>
+      </div>
+    </a>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Proximas telas recomendadas para monitoramento</h2>
+  </div>
+  <div class="recommendation-list">
+    <article>
+      <strong>Alertas e atrasos</strong>
+      <span>Acoes vencidas, proximas do vencimento e sem responsavel definido.</span>
+    </article>
+    <article>
+      <strong>Calendario de prazos</strong>
+      <span>Visao mensal/semanal dos fins planejados e compromissos por responsavel.</span>
+    </article>
+    <article>
+      <strong>Visao por responsavel</strong>
+      <span>Carga de trabalho, atrasos e conclusoes agrupados por pessoa.</span>
+    </article>
+    <article>
+      <strong>Visao por plano macro</strong>
+      <span>Percentual de avanco, subatividades criticas e historico de cada plano.</span>
+    </article>
+    <article>
+      <strong>Kanban de status</strong>
+      <span>Colunas para nao iniciado, em andamento, atrasado, pausado e concluido.</span>
+    </article>
+  </div>
+</section>
+{% endblock %}

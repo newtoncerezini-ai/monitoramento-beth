@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <span class="eyebrow">Cadastro e consulta</span>
+    <h1>Acoes</h1>
+  </div>
+  {% if can_write %}
+    <a class="button primary" href="{{ url_for('action_new') }}">Nova acao</a>
+  {% endif %}
+</header>
+
+<form class="filters command-bar" method="get">
+  <div class="search-field">
+    <span class="material-symbols-outlined">search</span>
+    <input name="q" placeholder="Buscar por codigo, acao ou observacao" value="{{ filters.q }}">
+  </div>
+  <select name="status">
+    <option value="">Todos os status</option>
+    {% for status in status_options %}
+      <option value="{{ status }}" {% if filters.status == status %}selected{% endif %}>{{ status }}</option>
+    {% endfor %}
+  </select>
+  <select name="person_id">
+    <option value="">Todos os responsaveis</option>
+    {% for person in people %}
+      <option value="{{ person.id }}" {% if filters.person_id|string == person.id|string %}selected{% endif %}>{{ person.name }}</option>
+    {% endfor %}
+  </select>
+  <button class="button" type="submit"><span class="material-symbols-outlined">filter_list</span> Filtrar</button>
+</form>
+
+<section class="panel">
+  <table class="action-table">
+    <thead>
+      <tr><th>Action ID</th><th>Description</th><th>User</th><th>Timestamp</th><th>Status</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for action in actions %}
+        <tr class="level-{{ action.level }}">
+          <td class="mono">#{{ action.code }}</td>
+          <td>
+            <a href="{{ url_for('action_detail', action_id=action.id) }}">{{ action.title }}</a>
+            {% if action.parent_title %}<small>{{ action.parent_title }}</small>{% endif %}
+          </td>
+          <td>{{ action.people|join(", ") }}</td>
+          <td>{{ action.planned_end or "-" }}</td>
+          <td><span class="badge {{ action.status|lower|replace(' ', '-') }}">{{ action.status }}</span></td>
+          <td>
+            {% if can_write %}
+              <a class="icon-link" href="{{ url_for('action_edit', action_id=action.id) }}">Editar</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6">Nenhuma acao encontrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
