@@ -24,48 +24,49 @@
     </dl>
   </div>
 
-  {% if can_write %}
-    <form class="panel monitor-form" method="post" action="{{ url_for('update_new', action_id=action.id) }}">
-      <h2>Novo acompanhamento</h2>
-      <label>Data do registro
-        <input type="date" name="update_date">
-      </label>
-      <label>Responsavel
-        <select name="responsible_id">
-          <option value="">Selecione</option>
-          {% for person in people %}
-            <option value="{{ person.id }}">{{ person.name }}</option>
-          {% endfor %}
-        </select>
-      </label>
-      <label>Encaminhamento
-        <textarea name="forwarding"></textarea>
-      </label>
-      <label>Prazo
-        <input type="date" name="due_date">
-      </label>
-      <button class="button primary" type="submit">Registrar</button>
-    </form>
+  {% if children %}
+  <section class="panel">
+    <div class="panel-head"><h2>Subatividades</h2></div>
+    <table class="subactivity-table">
+      <thead><tr><th>Codigo</th><th>Acao</th><th>Responsavel</th><th>Prazo</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for child in children %}
+        <tr>
+          <td>{{ child.code }}</td>
+          <td><a href="{{ url_for('action_detail', action_id=child.id) }}">{{ child.title }}</a></td>
+          <td>{{ child.people|join(", ") or "-" }}</td>
+          <td>{{ child.planned_end or "-" }}</td>
+          <td><span class="badge {{ child.status|lower|replace(' ', '-') }}">{{ child.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
   {% endif %}
 </section>
 
-{% if children %}
-<section class="panel">
-  <div class="panel-head"><h2>Subatividades</h2></div>
-  <table>
-    <thead><tr><th>Codigo</th><th>Acao</th><th>Prazo</th><th>Status</th></tr></thead>
-    <tbody>
-      {% for child in children %}
-      <tr>
-        <td>{{ child.code }}</td>
-        <td><a href="{{ url_for('action_detail', action_id=child.id) }}">{{ child.title }}</a></td>
-        <td>{{ child.planned_end or "-" }}</td>
-        <td><span class="badge {{ child.status|lower|replace(' ', '-') }}">{{ child.status }}</span></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</section>
+{% if can_write %}
+  <form class="panel monitor-form" method="post" action="{{ url_for('update_new', action_id=action.id) }}">
+    <h2>Novo acompanhamento</h2>
+    <label>Data do registro
+      <input type="date" name="update_date">
+    </label>
+    <label>Responsavel
+      <select name="responsible_id">
+        <option value="">Selecione</option>
+        {% for person in people %}
+          <option value="{{ person.id }}">{{ person.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Encaminhamento
+      <textarea name="forwarding"></textarea>
+    </label>
+    <label>Prazo
+      <input type="date" name="due_date">
+    </label>
+    <button class="button primary" type="submit">Registrar</button>
+  </form>
 {% endif %}
 
 <section class="panel">

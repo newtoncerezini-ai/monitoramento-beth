@@ -664,6 +664,16 @@ label textarea {
 .facts dd { margin: 0; }
 .monitor-form { display: grid; gap: 12px; padding: 24px; }
 
+.subactivity-table th,
+.subactivity-table td {
+  padding: 12px 16px;
+}
+
+.subactivity-table th:nth-child(3),
+.subactivity-table td:nth-child(3) {
+  min-width: 180px;
+}
+
 .login-page {
   display: grid;
   place-items: center;
