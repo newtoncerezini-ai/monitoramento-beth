@@ -27,18 +27,23 @@
   {% if can_write %}
     <form class="panel monitor-form" method="post" action="{{ url_for('update_new', action_id=action.id) }}">
       <h2>Novo acompanhamento</h2>
-      <label>Data <input type="date" name="update_date"></label>
-      <label>Status
-        <select name="status">
-          {% for status in status_options %}
-            <option value="{{ status }}" {% if action.status == status %}selected{% endif %}>{{ status }}</option>
+      <label>Data do registro
+        <input type="date" name="update_date">
+      </label>
+      <label>Responsavel
+        <select name="responsible_id">
+          <option value="">Selecione</option>
+          {% for person in people %}
+            <option value="{{ person.id }}">{{ person.name }}</option>
           {% endfor %}
         </select>
       </label>
-      <label>Avanco <input type="number" min="0" max="100" name="progress" value="0"></label>
-      <label>Comentario <textarea name="comment"></textarea></label>
-      <label>Proximo passo <textarea name="next_step"></textarea></label>
-      <label>Bloqueio <textarea name="blocker"></textarea></label>
+      <label>Encaminhamento
+        <textarea name="forwarding"></textarea>
+      </label>
+      <label>Prazo
+        <input type="date" name="due_date">
+      </label>
       <button class="button primary" type="submit">Registrar</button>
     </form>
   {% endif %}
@@ -66,19 +71,17 @@
 <section class="panel">
   <div class="panel-head"><h2>Historico</h2></div>
   <table>
-    <thead><tr><th>Data</th><th>Status</th><th>Avanco</th><th>Comentario</th><th>Proximo passo</th><th>Bloqueio</th></tr></thead>
+    <thead><tr><th>Data do registro</th><th>Responsavel</th><th>Encaminhamento</th><th>Prazo</th></tr></thead>
     <tbody>
       {% for update in updates %}
         <tr>
           <td>{{ update.update_date }}</td>
-          <td>{{ update.status }}</td>
-          <td>{{ update.progress }}%</td>
+          <td>{{ update.responsible_name or "-" }}</td>
           <td>{{ update.comment or "-" }}</td>
-          <td>{{ update.next_step or "-" }}</td>
-          <td>{{ update.blocker or "-" }}</td>
+          <td>{{ update.due_date or "-" }}</td>
         </tr>
       {% else %}
-        <tr><td colspan="6">Nenhum acompanhamento registrado.</td></tr>
+        <tr><td colspan="4">Nenhum acompanhamento registrado.</td></tr>
       {% endfor %}
     </tbody>
   </table>

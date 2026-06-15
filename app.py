@@ -100,7 +100,9 @@ def init_db() -> None:
         CREATE TABLE IF NOT EXISTS updates (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             action_id INTEGER NOT NULL REFERENCES actions(id) ON DELETE CASCADE,
+            responsible_id INTEGER REFERENCES people(id) ON DELETE SET NULL,
             update_date DATE NOT NULL,
+            due_date DATE,
             status TEXT NOT NULL,
             progress INTEGER NOT NULL DEFAULT 0 CHECK(progress BETWEEN 0 AND 100),
             comment TEXT,
@@ -124,6 +126,8 @@ def init_db() -> None:
         );
         """
     )
+    ensure_column(conn, "updates", "responsible_id", "INTEGER REFERENCES people(id) ON DELETE SET NULL")
+    ensure_column(conn, "updates", "due_date", "DATE")
     admin = conn.execute("SELECT id FROM users WHERE username = 'admin'").fetchone()
     if admin is None:
         conn.execute(
@@ -136,8 +140,15 @@ def init_db() -> None:
 
 
 def db() -> sqlite3.Connection:
-    init_db()
+    if "db" not in g:
+        init_db()
     return get_db()
+
+
+def ensure_column(conn: sqlite3.Connection, table: str, column: str, definition: str) -> None:
+    columns = [row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()]
+    if column not in columns:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 
 def sync_parent_planned_dates(conn: sqlite3.Connection) -> None:
@@ -802,33 +813,44 @@ def action_detail(action_id: int):
         """,
         (action_id,),
     ).fetchone()
-    updates = db().execute("SELECT * FROM updates WHERE action_id = ? ORDER BY update_date DESC, id DESC", (action_id,)).fetchall()
+    updates = db().execute(
+        """
+        SELECT u.*, pe.name AS responsible_name
+        FROM updates u
+        LEFT JOIN people pe ON pe.id = u.responsible_id
+        WHERE u.action_id = ?
+        ORDER BY u.update_date DESC, u.id DESC
+        """,
+        (action_id,),
+    ).fetchall()
     children = query_actions({"q": ""})
     children = [c for c in children if c["parent_id"] == action_id]
-    return render_template("action_detail.html", action=action, updates=updates, children=children, status_options=STATUS_OPTIONS)
+    return render_template("action_detail.html", action=action, updates=updates, children=children, people=get_people())
 
 
 @app.route("/actions/<int:action_id>/updates", methods=["POST"])
 @write_required
 def update_new(action_id: int):
     form = request.form
-    status = form.get("status") or "Em andamento"
+    action = db().execute("SELECT status FROM actions WHERE id = ?", (action_id,)).fetchone()
+    status = action["status"] if action else "Nao iniciado"
     db().execute(
         """
-        INSERT INTO updates (action_id, update_date, status, progress, comment, next_step, blocker)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO updates (action_id, responsible_id, update_date, due_date, status, progress, comment, next_step, blocker)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             action_id,
+            form.get("responsible_id") or None,
             form.get("update_date") or date.today().isoformat(),
+            form.get("due_date") or None,
             status,
-            int(form.get("progress") or 0),
-            form.get("comment"),
-            form.get("next_step"),
-            form.get("blocker"),
+            0,
+            form.get("forwarding"),
+            None,
+            None,
         ),
     )
-    db().execute("UPDATE actions SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", (status, action_id))
     db().commit()
     flash("Acompanhamento registrado.")
     return redirect(url_for("action_detail", action_id=action_id))
