@@ -41,6 +41,12 @@
           <a class="{{ 'active' if request.endpoint == 'monitoring_plans' else '' }}" href="{{ url_for('monitoring_plans') }}">Planos macro</a>
           <a class="{{ 'active' if request.endpoint == 'monitoring_kanban' else '' }}" href="{{ url_for('monitoring_kanban') }}">Kanban</a>
         </div>
+        <a class="{{ 'active' if request.endpoint in ['report_forwardings'] else '' }}" href="{{ url_for('report_forwardings') }}">
+          <span class="material-symbols-outlined">summarize</span> Relatorios
+        </a>
+        <div class="nav-sub">
+          <a class="{{ 'active' if request.endpoint == 'report_forwardings' else '' }}" href="{{ url_for('report_forwardings') }}">Encaminhamentos</a>
+        </div>
         {% if can_write %}
           <a class="{{ 'active' if request.endpoint in ['admin_home', 'action_new', 'action_edit', 'people_index', 'import_page', 'admin_users', 'admin_user_toggle', 'admin_user_password'] else '' }}" href="{{ url_for('admin_home') }}">
             <span class="material-symbols-outlined">settings</span> Administracao

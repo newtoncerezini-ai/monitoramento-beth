@@ -697,6 +697,63 @@ def monitoring_kanban():
     return render_template("monitoring_kanban.html", columns=columns)
 
 
+@app.route("/reports/forwardings")
+@login_required
+def report_forwardings():
+    selected_plan = request.args.get("plan", "")
+    plans = query_actions({"q": ""})
+    plans = [action for action in plans if action["level"] == 1]
+    if selected_plan:
+        plans_to_show = [plan for plan in plans if plan["code"] == selected_plan]
+    else:
+        plans_to_show = plans
+
+    report_plans = []
+    conn = db()
+    for plan in plans_to_show:
+        activities = conn.execute(
+            """
+            SELECT a.*, GROUP_CONCAT(pe.name, ' | ') AS people
+            FROM actions a
+            LEFT JOIN action_people ap ON ap.action_id = a.id
+            LEFT JOIN people pe ON pe.id = ap.person_id
+            WHERE a.code LIKE ? || '.%'
+            GROUP BY a.id
+            ORDER BY
+                CAST(substr(a.code, 1, instr(a.code || '.', '.') - 1) AS INTEGER),
+                a.code
+            """,
+            (plan["code"],),
+        ).fetchall()
+        activity_items = []
+        for activity in activities:
+            updates = conn.execute(
+                """
+                SELECT u.*, pe.name AS responsible_name
+                FROM updates u
+                LEFT JOIN people pe ON pe.id = u.responsible_id
+                WHERE u.action_id = ?
+                ORDER BY COALESCE(u.due_date, '9999-12-31'), u.update_date, u.id
+                """,
+                (activity["id"],),
+            ).fetchall()
+            activity_items.append(
+                {
+                    "activity": activity,
+                    "people": activity["people"].split(" | ") if activity["people"] else [],
+                    "updates": updates,
+                }
+            )
+        report_plans.append({"plan": plan, "activities": activity_items})
+
+    return render_template(
+        "report_forwardings.html",
+        plans=plans,
+        selected_plan=selected_plan,
+        report_plans=report_plans,
+    )
+
+
 @app.route("/actions/new", methods=["GET", "POST"])
 @write_required
 def action_new():

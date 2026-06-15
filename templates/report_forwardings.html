@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <span class="eyebrow">Relatorios</span>
+    <h1>Encaminhamentos por plano</h1>
+  </div>
+</header>
+
+<form class="command-bar report-filter" method="get">
+  <label>Plano
+    <select name="plan">
+      <option value="">Todos os planos</option>
+      {% for plan in plans %}
+        <option value="{{ plan.code }}" {% if selected_plan == plan.code %}selected{% endif %}>{{ plan.code }} - {{ plan.title }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button class="button" type="submit"><span class="material-symbols-outlined">filter_list</span> Filtrar</button>
+  <button class="button" type="button" onclick="window.print()"><span class="material-symbols-outlined">print</span> Imprimir</button>
+</form>
+
+{% for item in report_plans %}
+  <section class="panel report-plan">
+    <div class="panel-head">
+      <div>
+        <span class="eyebrow">Plano {{ item.plan.code }}</span>
+        <h2>{{ item.plan.title }}</h2>
+      </div>
+      <span class="badge">{{ item.activities|length }} atividades</span>
+    </div>
+
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Codigo</th>
+          <th>Atividade</th>
+          <th>Responsavel</th>
+          <th>Encaminhamento</th>
+          <th>Data do registro</th>
+          <th>Data de entrega</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in item.activities %}
+          {% if row.updates %}
+            {% for update in row.updates %}
+              <tr class="level-{{ row.activity.level }}">
+                <td class="mono">#{{ row.activity.code }}</td>
+                <td><a href="{{ url_for('action_detail', action_id=row.activity.id) }}">{{ row.activity.title }}</a></td>
+                <td>{{ update.responsible_name or row.people|join(", ") or "-" }}</td>
+                <td>{{ update.comment or "-" }}</td>
+                <td>{{ update.update_date or "-" }}</td>
+                <td>{{ update.due_date or "-" }}</td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr class="level-{{ row.activity.level }} muted-row">
+              <td class="mono">#{{ row.activity.code }}</td>
+              <td><a href="{{ url_for('action_detail', action_id=row.activity.id) }}">{{ row.activity.title }}</a></td>
+              <td>{{ row.people|join(", ") or "-" }}</td>
+              <td>Sem encaminhamento registrado</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+          {% endif %}
+        {% else %}
+          <tr><td colspan="6">Nenhuma atividade encontrada para este plano.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% else %}
+  <section class="panel empty-panel">Nenhum plano encontrado.</section>
+{% endfor %}
+{% endblock %}

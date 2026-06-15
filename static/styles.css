@@ -911,6 +911,53 @@ label textarea {
   color: var(--outline);
 }
 
+.report-filter {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) auto auto;
+}
+
+.report-plan .panel-head {
+  align-items: flex-start;
+}
+
+.report-table td {
+  vertical-align: top;
+}
+
+.report-table tr.level-2 td:first-child {
+  padding-left: 40px;
+}
+
+.report-table tr.level-3 td:first-child {
+  padding-left: 64px;
+}
+
+.muted-row td {
+  color: var(--outline);
+}
+
+@media print {
+  .sidebar,
+  .topbar,
+  .command-bar,
+  .flash {
+    display: none !important;
+  }
+
+  .page {
+    margin-left: 0;
+  }
+
+  .content-shell {
+    width: 100%;
+    padding: 0;
+  }
+
+  .panel {
+    break-inside: avoid;
+  }
+}
+
 @media (max-width: 1000px) {
   .sidebar {
     position: static;
@@ -927,7 +974,8 @@ label textarea {
   .admin-grid,
   .recommendation-list,
   .calendar-grid,
-  .plan-grid {
+  .plan-grid,
+  .report-filter {
     grid-template-columns: 1fr;
   }
   .span-2 { grid-column: span 1; }
