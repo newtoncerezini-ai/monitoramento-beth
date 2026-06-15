@@ -571,6 +571,32 @@ def completion_rate(actions: list[dict]) -> int:
     return round((done / len(actions)) * 100)
 
 
+def status_chart_data(by_status: dict[str, int]) -> tuple[list[dict], str]:
+    colors = {
+        "Nao iniciado": "#64748b",
+        "Em andamento": "#0f4c81",
+        "Concluido": "#166534",
+        "Atrasado": "#991b1b",
+        "Pausado": "#92400e",
+        "Cancelado": "#727780",
+    }
+    total = sum(by_status.values())
+    items = []
+    current = 0
+    segments = []
+    for status, count in by_status.items():
+        percent = round((count / total) * 100, 1) if total else 0
+        start = current
+        end = current + percent
+        color = colors.get(status, "#727780")
+        if count:
+            segments.append(f"{color} {start}% {end}%")
+        items.append({"status": status, "count": count, "percent": percent, "color": color})
+        current = end
+    gradient = ", ".join(segments) if segments else "#e6e8ea 0% 100%"
+    return items, gradient
+
+
 @app.route("/")
 @login_required
 def dashboard():
@@ -581,6 +607,7 @@ def dashboard():
     planned = [a for a in actions if a["planned_end"]]
     next_actions = sorted([a for a in planned if a["status"] != "Concluido"], key=lambda a: a["planned_end"])[:8]
     by_status = {status: len([a for a in actions if a["status"] == status]) for status in STATUS_OPTIONS}
+    status_items, status_gradient = status_chart_data(by_status)
     plans = [a for a in actions if a["level"] == 1]
     return render_template(
         "dashboard.html",
@@ -590,6 +617,8 @@ def dashboard():
         planned=len(planned),
         next_actions=next_actions,
         by_status=by_status,
+        status_items=status_items,
+        status_gradient=status_gradient,
         plans=plans,
         today=date.today().isoformat(),
     )

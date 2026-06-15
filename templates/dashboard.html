@@ -37,13 +37,23 @@
     <div class="panel-head">
       <h2>Status</h2>
     </div>
-    <div class="status-list">
-      {% for status, count in by_status.items() %}
-        <div class="status-row">
-          <span>{{ status }}</span>
-          <strong>{{ count }}</strong>
+    <div class="status-chart-wrap">
+      <div class="pie-chart" style="background: conic-gradient({{ status_gradient }});">
+        <div>
+          <strong>{{ total }}</strong>
+          <span>Total</span>
         </div>
-      {% endfor %}
+      </div>
+      <div class="status-legend">
+        {% for item in status_items %}
+          <div class="status-legend-row">
+            <i style="background: {{ item.color }}"></i>
+            <span>{{ item.status }}</span>
+            <strong>{{ item.count }}</strong>
+            <small>{{ item.percent }}%</small>
+          </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
 
