@@ -57,6 +57,7 @@ def close_db(_error: Exception | None) -> None:
 def init_db() -> None:
     prepare_db_file()
     conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     conn.executescript(
         """
@@ -129,6 +130,7 @@ def init_db() -> None:
             "INSERT INTO users (name, username, password_hash, role) VALUES (?, ?, ?, ?)",
             ("Administrador", "admin", generate_password_hash("admin123"), "admin"),
         )
+    sync_parent_planned_dates(conn)
     conn.commit()
     conn.close()
 
@@ -136,6 +138,50 @@ def init_db() -> None:
 def db() -> sqlite3.Connection:
     init_db()
     return get_db()
+
+
+def sync_parent_planned_dates(conn: sqlite3.Connection) -> None:
+    parents = conn.execute(
+        """
+        SELECT id, code
+        FROM actions parent
+        WHERE EXISTS (
+            SELECT 1
+            FROM actions child
+            WHERE child.code LIKE parent.code || '.%'
+        )
+        """
+    ).fetchall()
+    for parent in parents:
+        bounds = conn.execute(
+            """
+            SELECT MIN(planned_start) AS first_start, MAX(planned_end) AS last_end
+            FROM actions
+            WHERE code LIKE ? || '.%'
+            """,
+            (parent["code"],),
+        ).fetchone()
+        if not bounds:
+            continue
+        conn.execute(
+            """
+            UPDATE actions
+            SET
+                planned_start = COALESCE(planned_start, ?),
+                planned_end = COALESCE(planned_end, ?),
+                status = CASE
+                    WHEN actual_end IS NULL
+                     AND COALESCE(planned_end, ?) < DATE('now')
+                     AND status = 'Nao iniciado'
+                    THEN 'Atrasado'
+                    ELSE status
+                END,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+              AND (planned_start IS NULL OR planned_end IS NULL)
+            """,
+            (bounds["first_start"], bounds["last_end"], bounds["last_end"], parent["id"]),
+        )
 
 
 @app.before_request
