@@ -783,6 +783,62 @@ def report_forwardings():
     )
 
 
+@app.route("/reports/responsibles")
+@login_required
+def report_by_responsible():
+    selected_person = request.args.get("person_id", "")
+    people = get_people()
+    clauses = []
+    params = []
+    if selected_person:
+        clauses.append("p.id = ?")
+        params.append(selected_person)
+    where = "WHERE " + " AND ".join(clauses) if clauses else ""
+    rows = db().execute(
+        f"""
+        SELECT
+            p.id AS person_id,
+            p.name AS person_name,
+            p.area AS person_area,
+            a.id AS action_id,
+            a.code AS action_code,
+            a.title AS action_title,
+            a.status AS action_status,
+            a.planned_end AS planned_end,
+            plan.code AS plan_code,
+            plan.title AS plan_title,
+            u.update_date,
+            u.due_date,
+            u.comment AS forwarding
+        FROM people p
+        LEFT JOIN action_people ap ON ap.person_id = p.id
+        LEFT JOIN actions a ON a.id = ap.action_id
+        LEFT JOIN actions plan ON plan.code = substr(a.code, 1, instr(a.code || '.', '.') - 1)
+        LEFT JOIN updates u ON u.action_id = a.id AND (u.responsible_id = p.id OR u.responsible_id IS NULL)
+        {where}
+        ORDER BY p.name, plan.code, a.code, COALESCE(u.due_date, '9999-12-31'), u.update_date
+        """,
+        params,
+    ).fetchall()
+
+    grouped = []
+    by_person = {}
+    for row in rows:
+        person_id = row["person_id"]
+        if person_id not in by_person:
+            item = {"person": row, "rows": []}
+            by_person[person_id] = item
+            grouped.append(item)
+        by_person[person_id]["rows"].append(row)
+
+    return render_template(
+        "report_by_responsible.html",
+        people=people,
+        selected_person=selected_person,
+        grouped=grouped,
+    )
+
+
 @app.route("/actions/new", methods=["GET", "POST"])
 @write_required
 def action_new():

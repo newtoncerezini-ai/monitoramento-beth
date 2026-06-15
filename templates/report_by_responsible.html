@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <span class="eyebrow">Relatorios</span>
+    <h1>Relatorio por responsavel</h1>
+  </div>
+</header>
+
+<form class="command-bar report-filter" method="get">
+  <label>Responsavel
+    <select name="person_id">
+      <option value="">Todos os responsaveis</option>
+      {% for person in people %}
+        <option value="{{ person.id }}" {% if selected_person|string == person.id|string %}selected{% endif %}>{{ person.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button class="button" type="submit"><span class="material-symbols-outlined">filter_list</span> Filtrar</button>
+  <button class="button" type="button" onclick="window.print()"><span class="material-symbols-outlined">print</span> Imprimir</button>
+</form>
+
+{% for item in grouped %}
+  <section class="panel report-plan">
+    <div class="panel-head">
+      <div>
+        <span class="eyebrow">Responsavel</span>
+        <h2>{{ item.person.person_name }}</h2>
+        <small>{{ item.person.person_area or "Area nao informada" }}</small>
+      </div>
+      <span class="badge">{{ item.rows|length }} registros</span>
+    </div>
+
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Plano</th>
+          <th>Atividade</th>
+          <th>Status</th>
+          <th>Prazo da atividade</th>
+          <th>Encaminhamento</th>
+          <th>Data do registro</th>
+          <th>Data de entrega</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in item.rows %}
+          {% if row.action_id %}
+            <tr>
+              <td class="mono">#{{ row.plan_code or "-" }}</td>
+              <td><a href="{{ url_for('action_detail', action_id=row.action_id) }}">#{{ row.action_code }} - {{ row.action_title }}</a></td>
+              <td><span class="badge {{ row.action_status|lower|replace(' ', '-') }}">{{ row.action_status }}</span></td>
+              <td>{{ row.planned_end or "-" }}</td>
+              <td>{{ row.forwarding or "Sem encaminhamento registrado" }}</td>
+              <td>{{ row.update_date or "-" }}</td>
+              <td>{{ row.due_date or "-" }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="7">Responsavel sem acoes vinculadas.</td></tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% else %}
+  <section class="panel empty-panel">Nenhum responsavel encontrado.</section>
+{% endfor %}
+{% endblock %}
