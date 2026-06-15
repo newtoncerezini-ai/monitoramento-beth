@@ -9,11 +9,7 @@
   <body class="login-page">
     <main class="login-card">
       <div class="brand login-brand">
-        <span class="brand-mark">C</span>
-        <div>
-          <strong>COMFEM</strong>
-          <small>Monitoramento de planos</small>
-        </div>
+        <img class="login-logo" src="{{ url_for('static', filename='assets/jl-consultoria-logo.jpeg') }}" alt="JL Consultoria e Assessoria LTDA">
       </div>
       {% with messages = get_flashed_messages() %}
         {% if messages %}
