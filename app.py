@@ -573,12 +573,12 @@ def completion_rate(actions: list[dict]) -> int:
 
 def status_chart_data(by_status: dict[str, int]) -> tuple[list[dict], str]:
     colors = {
-        "Nao iniciado": "#64748b",
-        "Em andamento": "#0f4c81",
-        "Concluido": "#166534",
-        "Atrasado": "#991b1b",
-        "Pausado": "#92400e",
-        "Cancelado": "#727780",
+        "Nao iniciado": "#2563eb",
+        "Em andamento": "#0891b2",
+        "Concluido": "#16a34a",
+        "Atrasado": "#dc2626",
+        "Pausado": "#f59e0b",
+        "Cancelado": "#6d28d9",
     }
     total = sum(by_status.values())
     items = []

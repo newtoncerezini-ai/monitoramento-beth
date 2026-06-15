@@ -46,7 +46,7 @@
       </div>
       <div class="status-legend">
         {% for item in status_items %}
-          <div class="status-legend-row">
+          <div class="status-legend-row {{ 'is-empty' if item.count == 0 else '' }}">
             <i style="background: {{ item.color }}"></i>
             <span>{{ item.status }}</span>
             <strong>{{ item.count }}</strong>

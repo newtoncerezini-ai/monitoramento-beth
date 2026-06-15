@@ -522,6 +522,15 @@ h3 {
   text-align: right;
 }
 
+.status-legend-row.is-empty {
+  opacity: .55;
+}
+
+.status-legend-row.is-empty i {
+  background: var(--surface-highest) !important;
+  border: 1px solid var(--outline);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
