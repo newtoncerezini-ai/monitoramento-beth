@@ -59,42 +59,23 @@
 
   <div class="panel">
     <div class="panel-head">
-      <h2>Action monitoring</h2>
+      <h2>Monitoramento dos planos</h2>
     </div>
     <table>
-      <thead><tr><th>Action ID</th><th>Description</th><th>Timestamp</th><th>Status</th></tr></thead>
+      <thead><tr><th>Action ID</th><th>Description</th><th>User</th><th>Status</th></tr></thead>
       <tbody>
-        {% for action in next_actions %}
+        {% for plan in plans %}
           <tr>
-            <td class="mono">#{{ action.code }}</td>
-            <td><a href="{{ url_for('action_detail', action_id=action.id) }}">{{ action.title }}</a></td>
-            <td>{{ action.planned_end or "-" }}</td>
-            <td><span class="badge {{ action.status|lower|replace(' ', '-') }}">{{ action.status }}</span></td>
+            <td class="mono">#{{ plan.code }}</td>
+            <td><a href="{{ url_for('action_detail', action_id=plan.id) }}">{{ plan.title }}</a></td>
+            <td>{{ plan.people|join(", ") }}</td>
+            <td><span class="badge {{ plan.status|lower|replace(' ', '-') }}">{{ plan.status }}</span></td>
           </tr>
         {% else %}
-          <tr><td colspan="4">Nenhum prazo cadastrado.</td></tr>
+          <tr><td colspan="4">Nenhum plano cadastrado.</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-</section>
-
-<section class="panel">
-  <div class="panel-head">
-    <h2>Planos macro</h2>
-  </div>
-  <table>
-    <thead><tr><th>Action ID</th><th>Description</th><th>User</th><th>Status</th></tr></thead>
-    <tbody>
-      {% for plan in plans %}
-        <tr>
-          <td class="mono">#{{ plan.code }}</td>
-          <td><a href="{{ url_for('action_detail', action_id=plan.id) }}">{{ plan.title }}</a></td>
-          <td>{{ plan.people|join(", ") }}</td>
-          <td><span class="badge {{ plan.status|lower|replace(' ', '-') }}">{{ plan.status }}</span></td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
 </section>
 {% endblock %}
